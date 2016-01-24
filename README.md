@@ -38,7 +38,9 @@ var markdown = converter.ConvertFile(path);
 
 unix、windows、mac 的换行习惯
 > unix / linux：用 LF (\n) 表示一行结束。
+
 > mac：用 CR (\r) 表示一行结束。
+
 > windows：用 CR LF (\r\n) 和起来表示一行结束。
 
 ## 文章分类、tag 的获取
