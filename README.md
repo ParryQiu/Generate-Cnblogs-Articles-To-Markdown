@@ -1,4 +1,5 @@
-导出博客园的文章成 Markdown 文件存储的工具。
+导出博客园的文章成 Markdown 文件存储的工具。     
+
 基于 C# 语言，测试调用为 C# Console 程序。
 # 支持的功能
 * 可以循环抓取自己博客园的所有文章导出到 Markdown 文件进行保存；
@@ -43,8 +44,10 @@ var converter = new Converter();
 var markdown = converter.ConvertFile(path);
 ```
 
-注意项目中添加此组件引用的方法：
-1. 项目中已经迁入了 bin 文件夹，其中包含 `Html2Markdown.dll` 和 `HtmlAgilityPack.dll (Html2Markdown的依赖)`，直接添加到项目中引用即可；
+注意项目中添加此组件引用的方法：    
+
+1. 项目中已经迁入了 bin 文件夹，其中包含 `Html2Markdown.dll` 和 `HtmlAgilityPack.dll (Html2Markdown的依赖)`，直接添加到项目中引用即可；    
+
 2. 在包管理控制台中使用 `Install-Package Html2Markdown` 进行安装。
 
 ## 注意 Mac 和 Windows 以及 Linux 下的换行的区别
