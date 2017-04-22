@@ -80,7 +80,7 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                         var converter = new Converter();
                         var markdown = converter.Convert(mdContent);
                         //注意此处的作用是在抓取到的文章 300 字符处添加<!--more-->分隔符，用于博客展示文章时用于抽取描述以及阅读更多使用。
-                        if (isAddMoreSeparateLine)
+                        if (isAddMoreSeparateLine && markdown.Length > (separateLineLocation + 1))
                         {
                             markdown = markdown.Substring(0, separateLineLocation) + "\r\n<!--more-->\r\n" +
                                        markdown.Substring(separateLineLocation + 1);
