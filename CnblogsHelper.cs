@@ -13,6 +13,9 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
 {
     public class CnblogsHelper
     {
+
+        public  const string mCodeblockBegin = "{% codeblock lang:csharp%}";
+        public  const string mCodeblockEnd = "{% endcodeblock %}";
         /// <summary>
         /// 导出博客园的文章成本地 Markdown 进行保存
         /// </summary>
@@ -73,23 +76,43 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                         }
 
                         var categoryTags = GetArticleCategory(appName, blogId, postId);
-                        var fileName = GetFileName(articleUrl);
-                        var filePath = Application.StartupPath + "\\output\\" + fileName;
+                        var fileName = GetFileName(title, date);
+                        var filePath = Application.StartupPath + "\\output\\" + fileName;                       
                         var mdContent = string.Format("---\r\ntitle: {0}\r\ndate: {1}\r\n{2}\r\n---\r\n{3}", title, date,
                             categoryTags, articleContent);
                         var converter = new Converter();
                         var markdown = converter.Convert(mdContent);
-                        //注意此处的作用是在抓取到的文章 300 字符处添加<!--more-->分隔符，用于博客展示文章时用于抽取描述以及阅读更多使用。
+                        int tmpseparateLineLocation = separateLineLocation;
+                        //注意此处的作用是在抓取到的文章 300 字符处添加<!--more-->分隔符，用于博客展示文章时用于抽取描述以及阅读更多使用。                       
                         if (isAddMoreSeparateLine && markdown.Length > (separateLineLocation + 1))
-                        {
+                        {                            
+                            int indexb = 0,indexe = 0;
+                            while (indexe < separateLineLocation)
+                            {
+                                indexb = markdown.IndexOf(mCodeblockBegin, indexe);
+                                if (indexb == -1)
+                                {
+                                    break;//there are no codes in the arcticle.
+                                }
+                                indexe = markdown.IndexOf(mCodeblockEnd, indexb);                             
+                                //if the code block is truncated,adjust the separateLineLocation
+                                if ((indexb <= separateLineLocation && separateLineLocation <= indexb + mCodeblockBegin.Length)
+                                    || (indexe <= separateLineLocation  && separateLineLocation <= indexe + mCodeblockEnd.Length))
+                                {
+                                    separateLineLocation = indexe + mCodeblockEnd.Length;
+                                    break;
+                                }
+                            }                           
                             markdown = markdown.Substring(0, separateLineLocation) + "\r\n<!--more-->\r\n" +
                                        markdown.Substring(separateLineLocation + 1);
+                            separateLineLocation = tmpseparateLineLocation;
                         }
 
                         //保存文件
                         var streamWriter = new StreamWriter(filePath);
                         streamWriter.Write(markdown);
                         streamWriter.Close();
+                        Console.WriteLine(fileName+" have been generated..");
                     }
                 }
             }
@@ -103,6 +126,22 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
             if (articleUrl.Length > articleUrl.LastIndexOf("/") + 1)
                 return articleUrl.Substring(articleUrl.LastIndexOf("/") + 1).Replace(".html", string.Empty) + ".md";
             return "path_error";
+        }
+        private static string GetFileName(string title,string date)
+        {
+            var fileName = date + "_" + title+".md";
+            fileName = fileName.Replace(" ", "_");
+            //the following characters cannot appeared in filename.
+            fileName = fileName.Replace(":", "_");
+            fileName = fileName.Replace("\\", "_");
+            fileName = fileName.Replace("/", "_");
+            fileName = fileName.Replace("*", "_");
+            fileName = fileName.Replace("?", "_");
+            fileName = fileName.Replace("\"", "_");
+            fileName = fileName.Replace(">", "_");
+            fileName = fileName.Replace("<", "_");
+            fileName = fileName.Replace("|", "_");
+            return fileName;
         }
 
         private static string GetArticleCategory(string appName, int blogId, int postId)
@@ -178,22 +217,21 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                     RegexOptions.Singleline | RegexOptions.Multiline);
             var matches = regex.Matches(articleContent);
             foreach (Match match in matches)
-            {
+            {                
                 var resultString = Regex.Replace(match.Groups["code"].ToString(),
-                    @"<span\s+style=""color:\s+#008080;"">.*?</span>", "",
+                    @"<span\s+style=""color:\s+#008080;"">\s*\d+\s*", "",
                     RegexOptions.Singleline | RegexOptions.Multiline);
                 resultString = Regex.Replace(resultString, "<span.*?>", "",
                     RegexOptions.Singleline | RegexOptions.Multiline);
                 resultString = Regex.Replace(resultString, "</span>", "",
                     RegexOptions.Singleline | RegexOptions.Multiline);
 
-                resultString = "\r\n{% codeblock lang:csharp%}\r\n" + resultString + "\r\n{% endcodeblock %}\r\n";
-                articleContent =
-                    articleContent.Replace(match.Groups["total"].ToString(), resultString)
-                        .Replace("<div class=\"cnblogs_code\">", string.Empty)
-                        .Replace("</div>", string.Empty);
+                resultString = "\r\n" + mCodeblockBegin + "\r\n" + resultString + "\r\n" + mCodeblockEnd + "\r\n";
+                articleContent = articleContent.Replace(match.Groups["total"].ToString(), resultString);
+                       
             }
-            return articleContent;
+            return articleContent.Replace("<div class=\"cnblogs_code\">", string.Empty)
+                        .Replace("</div>", string.Empty);
         }
 
         #endregion
