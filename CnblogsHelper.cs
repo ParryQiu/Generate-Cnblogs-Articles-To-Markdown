@@ -129,7 +129,8 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
         {
             var fileName = date + "_" + title + ".md";
             Regex regex = new Regex("[:|\\|/|*|?|>|<||]");
-            return regex.Replace(fileName, "-");
+            fileName = regex.Replace(fileName, "-");
+            return fileName;
         }
 
         private static string GetArticleCategory(string appName, int blogId, int postId)
