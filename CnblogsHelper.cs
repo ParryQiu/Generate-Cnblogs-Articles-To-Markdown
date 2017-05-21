@@ -14,8 +14,8 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
     public class CnblogsHelper
     {
 
-        public  const string mCodeblockBegin = "{% codeblock lang:csharp%}";
-        public  const string mCodeblockEnd = "{% endcodeblock %}";
+        public const string mCodeblockBegin = "{% codeblock lang:csharp%}";
+        public const string mCodeblockEnd = "{% endcodeblock %}";
         /// <summary>
         /// 导出博客园的文章成本地 Markdown 进行保存
         /// </summary>
@@ -62,9 +62,7 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                         }
 
                         articleContent = ProcessArticleCode(articleContent);
-                        articleContent =
-                            articleContent.Replace("<div id=\"parrycontent\">", string.Empty)
-                                .Replace("</div>", string.Empty);
+                        articleContent = articleContent.Replace("<div id=\"parrycontent\">", string.Empty).Replace("</div>", string.Empty); //博客标记的特殊处理
                         var regexId = new Regex(@"cb_blogId=(?<blogid>\d+),cb_entryId=(?<entryid>\d+)",
                             RegexOptions.Singleline | RegexOptions.Multiline);
                         int blogId = 0, postId = 0;
@@ -77,7 +75,7 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
 
                         var categoryTags = GetArticleCategory(appName, blogId, postId);
                         var fileName = GetFileName(title, date);
-                        var filePath = Application.StartupPath + "\\output\\" + fileName;                       
+                        var filePath = Application.StartupPath + "\\output\\" + fileName;
                         var mdContent = string.Format("---\r\ntitle: {0}\r\ndate: {1}\r\n{2}\r\n---\r\n{3}", title, date,
                             categoryTags, articleContent);
                         var converter = new Converter();
@@ -85,8 +83,8 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                         int tmpseparateLineLocation = separateLineLocation;
                         //注意此处的作用是在抓取到的文章 300 字符处添加<!--more-->分隔符，用于博客展示文章时用于抽取描述以及阅读更多使用。                       
                         if (isAddMoreSeparateLine && markdown.Length > (separateLineLocation + 1))
-                        {                            
-                            int indexb = 0,indexe = 0;
+                        {
+                            int indexb = 0, indexe = 0;
                             while (indexe < separateLineLocation)
                             {
                                 indexb = markdown.IndexOf(mCodeblockBegin, indexe);
@@ -94,15 +92,15 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                                 {
                                     break;//there are no codes in the arcticle.
                                 }
-                                indexe = markdown.IndexOf(mCodeblockEnd, indexb);                             
+                                indexe = markdown.IndexOf(mCodeblockEnd, indexb);
                                 //if the code block is truncated,adjust the separateLineLocation
                                 if ((indexb <= separateLineLocation && separateLineLocation <= indexb + mCodeblockBegin.Length)
-                                    || (indexe <= separateLineLocation  && separateLineLocation <= indexe + mCodeblockEnd.Length))
+                                    || (indexe <= separateLineLocation && separateLineLocation <= indexe + mCodeblockEnd.Length))
                                 {
                                     separateLineLocation = indexe + mCodeblockEnd.Length;
                                     break;
                                 }
-                            }                           
+                            }
                             markdown = markdown.Substring(0, separateLineLocation) + "\r\n<!--more-->\r\n" +
                                        markdown.Substring(separateLineLocation + 1);
                             separateLineLocation = tmpseparateLineLocation;
@@ -112,7 +110,7 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                         var streamWriter = new StreamWriter(filePath);
                         streamWriter.Write(markdown);
                         streamWriter.Close();
-                        Console.WriteLine(fileName+" have been generated..");
+                        Console.WriteLine(fileName + " have been generated..");
                     }
                 }
             }
@@ -127,21 +125,11 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                 return articleUrl.Substring(articleUrl.LastIndexOf("/") + 1).Replace(".html", string.Empty) + ".md";
             return "path_error";
         }
-        private static string GetFileName(string title,string date)
+        private static string GetFileName(string title, string date)
         {
-            var fileName = date + "_" + title+".md";
-            fileName = fileName.Replace(" ", "_");
-            //the following characters cannot appeared in filename.
-            fileName = fileName.Replace(":", "_");
-            fileName = fileName.Replace("\\", "_");
-            fileName = fileName.Replace("/", "_");
-            fileName = fileName.Replace("*", "_");
-            fileName = fileName.Replace("?", "_");
-            fileName = fileName.Replace("\"", "_");
-            fileName = fileName.Replace(">", "_");
-            fileName = fileName.Replace("<", "_");
-            fileName = fileName.Replace("|", "_");
-            return fileName;
+            var fileName = date + "_" + title + ".md";
+            Regex regex = new Regex("[:|\\|/|*|?|>|<||]");
+            return regex.Replace(fileName, "-");
         }
 
         private static string GetArticleCategory(string appName, int blogId, int postId)
@@ -149,7 +137,7 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
             var strReturn = string.Empty;
             var apiReturn =
                 NetworkHelper.GetHtmlFromGet(string.Format("http://www.cnblogs.com/mvc/blog/CategoriesTags.aspx?blogApp={0}&blogId={1}&postId={2}", appName, blogId, postId), Encoding.UTF8);
-            var content = StringHelper.ConvertUnicode(apiReturn); //注意parry的参数需要替换，其实blogid不要获取，是固定的。
+            var content = StringHelper.ConvertUnicode(apiReturn); //注意参数 appName 需要替换，其实blogid不要获取，是固定的。
             var regexCategory = new Regex(@".*?category.*?>(\d+\.)?(?<cata>.*?)</a>",
                 RegexOptions.Singleline | RegexOptions.Multiline);
             var regexTag = new Regex(".*?tag.*?>(?<cata>.*?)</a>", RegexOptions.Singleline | RegexOptions.Multiline);
@@ -217,7 +205,7 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
                     RegexOptions.Singleline | RegexOptions.Multiline);
             var matches = regex.Matches(articleContent);
             foreach (Match match in matches)
-            {                
+            {
                 var resultString = Regex.Replace(match.Groups["code"].ToString(),
                     @"<span\s+style=""color:\s+#008080;"">\s*\d+\s*", "",
                     RegexOptions.Singleline | RegexOptions.Multiline);
@@ -228,7 +216,7 @@ namespace Generate_Cnblogs_Articles_To_Markdown_Files
 
                 resultString = "\r\n" + mCodeblockBegin + "\r\n" + resultString + "\r\n" + mCodeblockEnd + "\r\n";
                 articleContent = articleContent.Replace(match.Groups["total"].ToString(), resultString);
-                       
+
             }
             return articleContent.Replace("<div class=\"cnblogs_code\">", string.Empty)
                         .Replace("</div>", string.Empty);
