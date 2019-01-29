@@ -1,3 +1,7 @@
+老版本代码，博客园文章布局已改版，新版本请参见
+
+[https://github.com/pangguoming/Generate-Cnblogs-Articles-To-Markdown](https://github.com/pangguoming/Generate-Cnblogs-Articles-To-Markdown)
+
 导出博客园的文章成 Markdown 文件存储的工具。     
 
 基于 C# 语言，测试调用为 C# Console 程序。
@@ -11,7 +15,18 @@
 导出函数的定义以及参数。
 
 ```
-/// <summary>/// 导出博客园的文章成本地 Markdown 进行保存/// </summary>/// <param name="pageStart">博客起始页码，即 http://www.cnblogs.com/parry/default.html?page={0} </param>/// <param name="pageEnd">博客结束页码，即 http://www.cnblogs.com/parry/default.html?page={0} </param>/// <param name="isSaveImage">是否将文章中的图片保存到本地，保存后文件夹在程序运行的 images 文件夹</param>/// <param name="imagePrefixUrl">替换文章中的图片为自己图床的前缀 Url</param>/// <param name="isAddMoreSeparateLine">在抓取到的文章 separateLineLocation（参数） 处添加<!--more-->分隔符，用于博客展示文章时用于抽取描述以及阅读更多使用。</param>/// <param name="separateLineLocation">添加分隔符的位置</param>/// <returns>是否执行完成</returns>public static bool ExportToMarkdown(int pageStart, int pageEnd, bool isSaveImage, string imagePrefixUrl = "", bool isAddMoreSeparateLine = false, int separateLineLocation = 300){
+/// <summary>
+/// 导出博客园的文章成本地 Markdown 进行保存
+/// </summary>
+/// <param name="pageStart">博客起始页码，即 http://www.cnblogs.com/parry/default.html?page={0} </param>
+/// <param name="pageEnd">博客结束页码，即 http://www.cnblogs.com/parry/default.html?page={0} </param>
+/// <param name="isSaveImage">是否将文章中的图片保存到本地，保存后文件夹在程序运行的 images 文件夹</param>
+/// <param name="imagePrefixUrl">替换文章中的图片为自己图床的前缀 Url</param>
+/// <param name="isAddMoreSeparateLine">在抓取到的文章 separateLineLocation（参数） 处添加<!--more-->分隔符，用于博客展示文章时用于抽取描述以及阅读更多使用。</param>
+/// <param name="separateLineLocation">添加分隔符的位置</param>
+/// <returns>是否执行完成</returns>
+public static bool ExportToMarkdown(int pageStart, int pageEnd, bool isSaveImage, string imagePrefixUrl = "", bool isAddMoreSeparateLine = false, int separateLineLocation = 300)
+{
 	
 }
 ```
